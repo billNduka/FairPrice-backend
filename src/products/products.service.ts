@@ -6,30 +6,45 @@ import * as cheerio from "cheerio";
 export class ProductsService {
     async searchProducts(query:string = "Tecno Camon 40"){
         let results: { title: string | undefined; price: string; link: string }[] = [];
-        const url = `https://www.jumia.com.ng/catalog/?q=${encodeURIComponent(query)}`;
+        let page = 1;
+        const maxPages = 3;
+        const baseUrl = `https://www.jumia.com.ng/catalog/?q=${encodeURIComponent(query)}`;
+        
 
         try{
-            const { data } = await axios.get(url);  
-            const $ = cheerio.load(data);
+            while (page <= maxPages){   
+                const url = `${baseUrl}&page=${page++}`;
+                console.log(`Scraping page ${page}: ${url}`);
 
-            $('a.core').each((i, el) => {
-                const title = $(el).find('.name').text();
-                const price = $(el).find('.prc').text();
-                const link = "https://www.jumia.com.ng" + $(el).attr('href');
+                const { data } = await axios.get(url);  
+                const $ = cheerio.load(data);
 
-                if (title && price) {
-                    results.push({ title, price, link });
-                }
+                $('a.core').each((i, el) => {
+                    const title = $(el).find('.name').text();
+                    const price = $(el).find('.prc').text();
+                    const link = "https://www.jumia.com.ng" + $(el).attr('href');
 
+                    if (title && price && link) {
+                        results.push({ title, price, link });
+                    }
+                });
+            }
+
+            const averagePrice = Math.round(results.map(r => parseInt(r.price.replace(/\D/g, ""))).reduce((sum, val) => sum + val, 0) / results.length);
+            const filteredResults = results.filter(r => {
+                const numericPrice = parseInt(r.price.replace(/\D/g, ""));
+                return numericPrice >= averagePrice * 0.7 && numericPrice <= averagePrice * 5;
             });
 
             return {
                     query,
-                    count: results.length,
-                    lowestPrice: results.length ? Math.min(...results.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
-                    highestPrice: results.length ? Math.max(...results.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
-                    results
+                    count: filteredResults.length,
+                    lowestPrice: filteredResults.length ? Math.min(...filteredResults.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
+                    highestPrice: filteredResults.length ? Math.max(...filteredResults.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
+                    averagePrice: averagePrice,
+                    filteredResults
             };
+            
         }catch(error){
             console.error("Error scraping: ", query, error.message)
         }
