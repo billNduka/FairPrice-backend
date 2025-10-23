@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JumiaService } from './jumia.service';
 import { KongaService } from './konga.service';
+import { JijiService } from './jiji.service';
 
 @Injectable()
 export class ProductsService {
@@ -8,19 +9,20 @@ export class ProductsService {
     constructor(
         private readonly jumiaService: JumiaService,
         private readonly kongaService: KongaService,
+        private readonly jijiService: JijiService,
     ) {}
 
 
-    async searchProducts(query:string = "Tecno Camon 40"){
+    async searchProducts(query:string){
 
         try{
-            const [jumia, konga] = await Promise.all([
+            const [jumia, jiji] = await Promise.all([
                 this.jumiaService.searchJumia(query),
-                this.kongaService.searchKonga(query),
+                this.jijiService.searchJiji(query),
             ]);
             const jumiaResults = jumia?.results ?? [];
-            const kongaResults = konga?.results ?? [];
-            const allResults = [...jumiaResults, ...kongaResults];
+            const jijiResults = jiji?.results ?? [];
+            const allResults = [...jumiaResults, ...jijiResults];
 
             const averagePrice = Math.round(allResults.map(r => parseInt(r.price.replace(/\D/g, ""))).reduce((sum, val) => sum + val, 0) / allResults.length);
             const filteredResults = allResults.filter(r => {
@@ -29,12 +31,12 @@ export class ProductsService {
             });
 
             return {
-                    query,
-                    count: filteredResults.length,
-                    lowestPrice: filteredResults.length ? Math.min(...filteredResults.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
-                    highestPrice: filteredResults.length ? Math.max(...filteredResults.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
-                    averagePrice: averagePrice,
-                    filteredResults
+                query,
+                count: filteredResults.length,
+                lowestPrice: filteredResults.length ? Math.min(...filteredResults.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
+                highestPrice: filteredResults.length ? Math.max(...filteredResults.map(r => parseInt(r.price.replace(/\D/g, "")))) : null,
+                averagePrice: averagePrice,
+                filteredResults
             };
             
         }catch(error){

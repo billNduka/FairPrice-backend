@@ -7,7 +7,7 @@ export class KongaService {
      async searchKonga(query: string){
         let results: { title: string | undefined; price: string; link: string }[] = [];
         let page = 1;
-        const maxPages = 3;
+        const maxPages = 1;
         const baseUrl = `https://www.konga.com/search?search=${encodeURIComponent(query)}`;
         
         try{
@@ -15,10 +15,18 @@ export class KongaService {
                 const url = `${baseUrl}&page=${page}`;
                 console.log(`Scraping konga page ${page}: ${url}`);
 
-                const { data } = await axios.get(url);  
+                const { data } = await axios.get(url , {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    },
+                    maxRedirects: 5,
+                });  
                 const $ = cheerio.load(data);
 
-                console.log($('div.ListingCard_listingCardMetaContainer__HCXHt'))
+                console.log('html snippet:', data.slice(0, 800)); // small sample of raw HTML
+                console.log('root html snippet:', $.root().html()?.slice(0, 800));
+                console.log('product cards matched:', $('div.ListingCard_listingCardMetaContainer__HCXHt').length);
                 $('div.ListingCard_listingCardMetaContainer__HCXHt').each((i, el) => {
                     const title = $(el).find('.ListingCard_productTitle_9Kzxv').text();
                     const price = $(el).find('.shared_price__gnso_').text();
