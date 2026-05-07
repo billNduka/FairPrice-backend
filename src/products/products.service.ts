@@ -39,7 +39,7 @@ export class ProductsService {
                 filteredResults
             };
             
-        }catch(error){
+        }catch(error: any){
             console.error("Error scraping: ", query, error.message)
         }
     }

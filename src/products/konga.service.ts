@@ -7,7 +7,7 @@ export class KongaService {
      async searchKonga(query: string){
         let results: { title: string | undefined; price: string; link: string }[] = [];
         let page = 1;
-        const maxPages = 1;
+        const maxPages = 2;
         const baseUrl = `https://www.konga.com/search?search=${encodeURIComponent(query)}`;
         
         try{
@@ -46,7 +46,7 @@ export class KongaService {
                 results
             };
             
-        }catch(error){
+        }catch(error: any){
             console.error("Error scraping: ", query, error.message)
         }
     }

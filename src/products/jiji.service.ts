@@ -5,9 +5,9 @@ import * as cheerio from "cheerio";
 @Injectable()
 export class JijiService {
     async searchJiji(query: string){
-        let results: { source: "jiji", title: string | undefined; price: string; link: string }[] = [];
+        let results: { source: "jiji", title: string | undefined; price: string; link: string; image:string }[] = [];
         let page = 1;
-        const maxPages = 3;
+        const maxPages = 1;
         const baseUrl = `https://jiji.ng/search?query=${encodeURIComponent(query)}`;
         
         try{
@@ -34,10 +34,11 @@ export class JijiService {
                     const title = $(el).find('.qa-advert-list-item-title').text().trim();
                     const price = $(el).find('.qa-advert-price').text().trim();
                     const href = $(el).attr('href') || '';
+                    const image = $(el).find('img').attr('src') || '';
                     const link = href ? (href.startsWith('http') ? href : new URL(href, 'https://jiji.ng').href) : '';
 
                     if (title && price && link) {
-                        results.push({ source: "jiji", title, price, link });
+                        results.push({ source: "jiji", title, price, link, image });
                     }
                 });
 
@@ -48,7 +49,7 @@ export class JijiService {
                 results
             };
             
-        }catch(error){
+        }catch(error: any){
             console.error("Error scraping: ", query, error.message)
         }
     }
