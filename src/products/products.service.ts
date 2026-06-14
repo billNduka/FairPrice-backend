@@ -13,18 +13,33 @@ export class ProductsService {
     ) {}
 
 
-    async searchProducts(query:string){
+    async searchProducts(query:string, sort: string){
 
         try{
-            const [jumia, jiji] = await Promise.all([
-                this.jumiaService.searchJumia(query),
-                this.jijiService.searchJiji(query),
+            const [jumia, jiji, konga] = await Promise.all([
+                this.jumiaService.search(query, sort),
+                this.jijiService.search(query, sort),
+                this.kongaService.search(query, sort),
             ]);
             const jumiaResults = jumia?.results ?? [];
             const jijiResults = jiji?.results ?? [];
-            const allResults = [...jumiaResults, ...jijiResults];
+            const kongaResults = konga?.results ?? [];
+            const allResults = [...jumiaResults, ...jijiResults, ...kongaResults];
 
-            const averagePrice = Math.round(allResults.map(r => parseInt(r.price.replace(/\D/g, ""))).reduce((sum, val) => sum + val, 0) / allResults.length);
+            // Handle empty results
+            if (allResults.length === 0) {
+                return {
+                    query,
+                    count: 0,
+                    lowestPrice: null,
+                    highestPrice: null,
+                    averagePrice: 0,
+                    filteredResults: []
+                };
+            }
+
+            const prices = allResults.map(r => parseInt(r.price.replace(/\D/g, "")));
+            const averagePrice = Math.round(prices.reduce((sum, val) => sum + val, 0) / prices.length);
             const filteredResults = allResults.filter(r => {
                 const numericPrice = parseInt(r.price.replace(/\D/g, ""));
                 return numericPrice >= averagePrice * 0.7 && numericPrice <= averagePrice * 5;
@@ -40,7 +55,16 @@ export class ProductsService {
             };
             
         }catch(error: any){
-            console.error("Error scraping: ", query, error.message)
+            console.error("Error scraping: ", query, error.message);
+            return {
+                query,
+                count: 0,
+                lowestPrice: null,
+                highestPrice: null,
+                averagePrice: 0,
+                filteredResults: [],
+                error: error.message
+            };
         }
     }
 }

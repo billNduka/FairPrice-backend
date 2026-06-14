@@ -6,7 +6,7 @@ export class ProductsController {
     constructor(private readonly ProductsService: ProductsService) {}
     
     @Get("search")
-    getProduct(@Query('query') query: string){
-        return this.ProductsService.searchProducts(query);
+    getProduct(@Query('query') query: string, @Query('sort') sort: string){
+        return this.ProductsService.searchProducts(query, sort);
     }
 }
