@@ -7,20 +7,6 @@ export class KongaService extends BaseScraperService {
   protected source = 'konga';
   protected maxPages = 2;
 
-  async searchKonga(query: string, sort: string) {
-    const result = await this.search(query, sort);
-    const filteredResults = result.results.map(({ title, price, link }) => ({
-      title,
-      price,
-      link,
-    }));
-
-    return {
-      source: this.source,
-      results: filteredResults,
-    };
-  }
-
   protected mapSortOption(sort: string): string {
     switch (sort) {
       case 'Price: Ascending':
