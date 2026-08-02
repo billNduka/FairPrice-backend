@@ -41,7 +41,6 @@ export class KongaService extends BaseScraperService {
 
       let json = JSON.parse(scriptContent);
       let items = json["@graph"][2].itemListElement;
-      console.log(items)
      
       for (const listItem of items) {
         const product = listItem.item;
@@ -50,8 +49,6 @@ export class KongaService extends BaseScraperService {
         const price = product.offers?.price.toString();
         const link = product.url;
         const image = product.image;
-
-        console.log(title, price, link);
 
         if (title && price && link) {
             results.push({

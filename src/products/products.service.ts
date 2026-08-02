@@ -38,7 +38,8 @@ export class ProductsService {
                 };
             }
 
-            const prices = allResults.map(r => parseInt(r.price.replace(/\D/g, "")));
+            //const prices = allResults.map(r => parseInt(r.price.replace(/\D/g, "")));
+            const prices = this.jumiaService.normalizePrices(allResults);
             const averagePrice = Math.round(prices.reduce((sum, val) => sum + val, 0) / prices.length);
             const filteredResults = allResults.filter(r => {
                 const numericPrice = parseInt(r.price.replace(/\D/g, ""));

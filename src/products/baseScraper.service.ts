@@ -9,10 +9,12 @@ export interface ScrapedProduct {
     link: string;
     image: string;
 }
+export type steps = "parsed" | "searched" | "normalized"
 
 @Injectable()
 export abstract class BaseScraperService {
     protected abstract source: string;
+    protected page: number = 1;
     protected abstract maxPages: number;
     protected genericSortOptions:string[] = ["Popularity", "Newest", "Price: Ascending", "Price: Descending", "Rating"];
 
@@ -21,27 +23,46 @@ export abstract class BaseScraperService {
     protected abstract mapSortOption(sort: string): string;
 
     protected abstract parseResults($: cheerio.CheerioAPI, results: ScrapedProduct[]): void;
+  
+    protected logExecution(currentStep: steps): void{
+        switch (currentStep){
+            case "searched":
+                console.log(`Searched ${this.source} page ${this.page}...`);
+                break;
+            case "parsed":
+                console.log(`Parsed ${this.source} page ${this.page}...`);
+                break;
+            case "normalized":
+                console.log(`Normalized ${this.source} page ${this.page}...`);
+                break;
+        }
+    }
+
+    public normalizePrices(results: ScrapedProduct[]): number[]{
+        const prices = results.map(r => parseInt(r.price.replace(/\D/g, "")));
+        this.logExecution("normalized")
+        return prices;
+    }
 
     async search(query: string, sort: string): Promise<{ results: ScrapedProduct[] }> {
         const results: ScrapedProduct[] = [];
         const sortType = this.mapSortOption(sort);
-        let page = 1;
 
         try {
-            while (page <= this.maxPages) {
-                const url = this.buildUrl(query, sortType, page);
-                console.log(`Scraping ${this.source} page ${page}: ${url}`);
-                page++;
+            while (this.page <= this.maxPages) {
+                const url = this.buildUrl(query, sortType, this.page);
 
                 const { data } = await axios.get(url, {
                     headers: this.defaultHeaders(),
-                    timeout: 80000,
+                    timeout: 100000,
                 });
 
                 const $ = cheerio.load(data);
+                this.logExecution("parsed");
                 this.parseResults($, results);
+                this.page++;
             }
-            console.log(`[${this.source}] Finished with ${results.length} results`);
+            this.logExecution("searched");
             return { results };
         } catch (error) {
             console.error(`Error scraping ${this.source}:`, error);
