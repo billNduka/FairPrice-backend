@@ -81,7 +81,7 @@ import * as cheerio from "cheerio";
 @Injectable()
 export class JumiaService extends BaseScraperService {
     protected source = "jumia";
-    protected maxPages = 3;
+    protected maxPages = 1;
 
     protected mapSortOption(sort: string): string {
         switch (sort) {

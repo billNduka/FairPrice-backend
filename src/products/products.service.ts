@@ -20,11 +20,11 @@ export class ProductsService {
                 this.jumiaService.search(query, sort),
                 this.jijiService.search(query, sort),
                 this.kongaService.search(query, sort),
-            ]);
-            const jumiaResults = jumia?.results ?? [];
-            const jijiResults = jiji?.results ?? [];
-            const kongaResults = konga?.results ?? [];
-            const allResults = [...jumiaResults, ...jijiResults, ...kongaResults];
+               ]);
+                const jumiaResults = jumia?.results ?? [];
+                const jijiResults = jiji?.results ?? [];
+                const kongaResults = konga?.results ?? [];
+                const allResults = [...jumiaResults, ...jijiResults, ...kongaResults];
 
             // Handle empty results
             if (allResults.length === 0) {

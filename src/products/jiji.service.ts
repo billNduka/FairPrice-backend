@@ -95,7 +95,7 @@ import { BaseScraperService, ScrapedProduct } from './baseScraper.service';
 @Injectable()
 export class JijiService extends BaseScraperService{
     protected source = "jiji";
-    protected maxPages = 3;
+    protected maxPages = 1;
 
     protected mapSortOption(sort: string): string {
                 switch (sort) {

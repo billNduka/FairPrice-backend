@@ -35,13 +35,13 @@ export abstract class BaseScraperService {
 
                 const { data } = await axios.get(url, {
                     headers: this.defaultHeaders(),
-                    timeout: 60000,
+                    timeout: 80000,
                 });
 
                 const $ = cheerio.load(data);
                 this.parseResults($, results);
             }
-
+            console.log(`[${this.source}] Finished with ${results.length} results`);
             return { results };
         } catch (error) {
             console.error(`Error scraping ${this.source}:`, error);
