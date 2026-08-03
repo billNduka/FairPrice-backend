@@ -3,7 +3,7 @@ import { BaseScraperService, ScrapedProduct } from './baseScraper.service';
 import * as cheerio from 'cheerio';
 
 @Injectable()
-export class KongaService extends BaseScraperService {
+export class KongaScraperService extends BaseScraperService {
   protected source = 'konga';
   protected maxPages = 1;
 

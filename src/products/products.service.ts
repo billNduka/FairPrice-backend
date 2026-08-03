@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { JumiaService } from './jumia.service';
-import { KongaService } from './konga.service';
-import { JijiService } from './jiji.service';
+import { JumiaScraperService } from './jumia.service';
+import { KongaScraperService } from './konga.service';
+import { JijiScraperService } from './jiji.service';
 
 @Injectable()
 export class ProductsService {
 
     constructor(
-        private readonly jumiaService: JumiaService,
-        private readonly kongaService: KongaService,
-        private readonly jijiService: JijiService,
+        private readonly JumiaScraperService: JumiaScraperService,
+        private readonly KongaScraperService: KongaScraperService,
+        private readonly JijiScraperService: JijiScraperService,
     ) {}
 
 
@@ -17,9 +17,9 @@ export class ProductsService {
 
         try{
             const [jumia, jiji, konga] = await Promise.all([
-                this.jumiaService.search(query, sort),
-                this.jijiService.search(query, sort),
-                this.kongaService.search(query, sort),
+                this.JumiaScraperService.search(query, sort),
+                this.JijiScraperService.search(query, sort),
+                this.KongaScraperService.search(query, sort),
                ]);
                 const jumiaResults = jumia?.results ?? [];
                 const jijiResults = jiji?.results ?? [];
@@ -39,7 +39,7 @@ export class ProductsService {
             }
 
             //const prices = allResults.map(r => parseInt(r.price.replace(/\D/g, "")));
-            const prices = this.jumiaService.normalizePrices(allResults);
+            const prices = this.JumiaScraperService.normalizePrices(allResults);
             const averagePrice = Math.round(prices.reduce((sum, val) => sum + val, 0) / prices.length);
             const filteredResults = allResults.filter(r => {
                 const numericPrice = parseInt(r.price.replace(/\D/g, ""));
